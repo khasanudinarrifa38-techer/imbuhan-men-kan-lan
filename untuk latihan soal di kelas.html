@@ -1,0 +1,1784 @@
+<!DOCTYPE html>
+<html lang="id" class="h-full bg-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ujian CAT Interaktif</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="h-full text-slate-800 antialiased selection:bg-blue-500 selection:text-white flex flex-col">
+
+    <!-- OVERLAY KEDALUWARSA (Tampil otomatis jika melewati batas waktu) -->
+    <div id="expiration-overlay" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8 text-center space-y-4 border border-slate-200">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-sm">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h2 class="text-xl font-bold text-slate-800">Akses Ujian Ditutup</h2>
+            <p class="text-xs text-slate-600 leading-relaxed">
+                Maaf, halaman ujian ini sudah tidak dapat diakses karena telah melewati batas waktu yang ditentukan (15 Oktober 2026 pukul 12:00 WIB).
+            </p>
+            <div class="pt-2">
+                <span class="inline-block px-4 py-2 bg-slate-100 text-slate-500 rounded-xl text-xs font-mono font-semibold">
+                    Status: Kadaluarsa / Expired
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://cdn.phototourl.com/member/2026-09-28-523950e4-4b19-4b31-96a6-7fbd7721c757.png" 
+                     alt="Logo CAT Online" 
+                     class="h-10 w-auto object-contain max-w-[160px]"
+                     onerror="this.onerror=null; this.src='https://placehold.co/120x40/2563eb/ffffff?text=CAT+Online';">
+                <div>
+                    <h1 class="text-base font-bold text-slate-900 leading-tight">PORTAL CAT Online</h1>
+                    <p class="text-xs text-slate-500 hidden sm:block">Sistem Ujian Computer Assisted Test</p>
+                    <p class="text-xs text-slate-500 hidden sm:block font-medium text-blue-700">SD NEGERI 1 BANDUNG</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-xl shadow-sm">
+                    <span class="text-[11px] font-medium text-slate-500">Created by</span>
+                    <img src="https://cdn.phototourl.com/member/2026-09-28-c7d8d789-5ce9-4f65-9b84-7d69a0771dd5.png" 
+                         alt="Created By Logo" 
+                         class="h-7 w-auto object-contain"
+                         onerror="this.onerror=null; this.src='https://placehold.co/80x28/2563eb/ffffff?text=Creator';">
+                </div>
+
+                <!-- Header Exam Info (Visible during exam) -->
+                <div id="header-exam-info" class="hidden flex items-center gap-4">
+                    <div class="hidden md:flex items-center gap-2 bg-slate-100 px-3 py-1.5 rounded-lg border border-slate-200 text-xs">
+                        <i class="fa-solid fa-user-check text-blue-600"></i>
+                        <span id="nav-user-name" class="font-semibold text-slate-700">Peserta</span>
+                    </div>
+
+                    <div class="flex items-center gap-2 bg-rose-50 border border-rose-200 px-3 py-1.5 rounded-xl text-rose-700 font-mono font-bold text-sm shadow-sm">
+                        <i class="fa-regular fa-clock animate-pulse text-rose-600"></i>
+                        <span id="timer">30:00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 flex flex-col">
+	<!-- 1. START / PETUNJUK UJIAN SCREEN -->
+        <div id="start-screen" class="my-auto max-w-lg w-full mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 p-6 sm:p-8 text-center space-y-4">
+                <div class="w-16 h-16 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto text-2xl">
+                    <i class="fa-solid fa-expand"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-800">Petunjuk Ujian</h2>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Ujian ini wajib dikerjakan dalam mode layar penuh (Fullscreen). Pastikan Anda tidak menutup atau berpindah jendela selama ujian berlangsung.
+                </p>
+                
+                <button onclick="requestFullScreen()" class="w-full sm:w-auto px-6 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition shadow-md shadow-indigo-500/20 flex items-center justify-center gap-2 mx-auto">
+                    <i class="fa-solid fa-play"></i>
+                    <span>Mulai Ujian (Mode Layar Penuh)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 1. LOGIN SCREEN -->
+        <div id="login-screen" class="hidden my-auto max-w-md w-full mx-auto">
+            <div class="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
+                <div class="bg-gradient-to-r from-blue-600 to-indigo-700 p-6 text-white text-center">
+                    <div class="w-16 h-16 bg-white/10 rounded-2xl flex items-center justify-center mx-auto mb-3 backdrop-blur-md p-2">
+                        <img src="https://cdn.phototourl.com/member/2026-09-28-523950e4-4b19-4b31-96a6-7fbd7721c757.png" 
+                             alt="Logo Konfirmasi Identitas" 
+                             class="w-full h-full object-contain filter drop-shadow"
+                             onerror="this.onerror=null; this.src='https://placehold.co/64x64/2563eb/ffffff?text=Logo';">
+                    </div>
+                    <h2 class="text-xl font-bold">Konfirmasi Identitas</h2>
+                    <p class="text-xs text-blue-100 mt-1">Masukkan Nama Lengkap Anda untuk memulai</p>
+                </div>
+
+                <form id="login-form" onsubmit="handleStartExam(event)" class="p-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Nama Lengkap</label>
+                        <div class="relative">
+                            <i class="fa-solid fa-user absolute left-3.5 top-3 text-slate-400 text-sm"></i>
+                            <input type="text" id="user-name" required placeholder="Contoh: Ahmad Subagja" 
+                                class="w-full pl-10 pr-4 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition">
+                        </div>
+                    </div>
+
+                    <div class="bg-amber-50 rounded-xl p-3 border border-amber-200 flex gap-2.5 text-xs text-amber-800">
+                        <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-sm shrink-0"></i>
+                        <p class="leading-relaxed">Ujian berlangsung selama <strong>30 menit</strong> dengan <strong id="total-questions-info">50 soal</strong> variasi. Pastikan koneksi internet Anda lancar.</p>
+                    </div>
+
+                    <button type="submit" class="w-full py-3 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-semibold rounded-xl text-sm shadow-md shadow-blue-500/20 transition flex items-center justify-center gap-2">
+                        <span>Mulai Ujian</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 2. EXAM INTERFACE SCREEN -->
+        <div id="exam-app" class="hidden space-y-6">
+            <!-- Progress Bar -->
+            <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div class="flex items-center gap-3 w-full sm:w-auto">
+                    <span class="text-xs font-bold text-slate-500 uppercase tracking-wider whitespace-nowrap">Progres Ujian</span>
+                    <div class="w-full sm:w-48 bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                        <div id="exam-progress-bar" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 text-xs font-semibold text-slate-600 self-end sm:self-auto">
+                    <span>Pelanggaran: <strong id="violation-badge" class="text-rose-600">0</strong>/3</span>
+                    <span class="text-slate-300">|</span>
+                    <span>Terjawab: <strong id="answered-badge" class="text-blue-600">0</strong>/<span id="total-badge">50</span></span>
+                    <span class="text-slate-300">|</span>
+                    <span>Ragu: <strong id="marked-badge" class="text-amber-600">0</strong></span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Main Question Area -->
+                <div class="lg:col-span-3 space-y-4">
+                    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 relative min-h-[380px] flex flex-col justify-between">
+                        
+                        <!-- Question Header & Type Badge -->
+                        <div>
+                            <div class="flex items-center justify-between border-b pb-4 mb-5">
+                                <div class="flex items-center gap-2">
+                                    <span id="question-number-badge" class="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-bold rounded-lg">Soal 1</span>
+                                    <span id="question-type-badge" class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-semibold rounded-lg border border-slate-200">Pilihan Ganda</span>
+                                </div>
+                                <button onclick="toggleMarkCurrentQuestion()" id="flag-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100">
+                                    <i class="fa-regular fa-bookmark"></i>
+                                    <span>Ragu-Ragu</span>
+                                </button>
+                            </div>
+
+                            <!-- Question Text -->
+                            <div id="question-container" class="text-slate-800 font-medium text-base leading-relaxed mb-4 whitespace-pre-line">
+                                <!-- Dynamic Question Text -->
+                            </div>
+
+                            <!-- Dynamic Question Image Container -->
+                           <div id="question-image-container" class="hidden mb-6 text-center">
+								<div class="relative group inline-block max-w-full">
+									<img id="question-image" src="" alt="Gambar Soal" 
+										 class="max-h-80 w-auto rounded-xl border border-slate-200 shadow-sm object-contain cursor-pointer hover:opacity-95 transition mx-auto"
+										 onclick="openImageModal(this.src)">
+									<span class="text-[10px] text-slate-400 mt-1 block"><i class="fa-solid fa-magnifying-glass-plus"></i> Klik gambar untuk memperbesar</span>
+								</div>
+							</div>
+
+                            <!-- Answer Options Container -->
+                            <div id="options-container" class="space-y-3">
+                                <!-- Dynamic Options -->
+                            </div>
+                        </div>
+
+                        <!-- Footer Navigation Buttons -->
+                        <div class="flex items-center justify-between pt-6 border-t mt-8 gap-2">
+                            <button id="prev-btn" onclick="navigateQuestion(-1)" class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 text-xs font-semibold transition flex items-center gap-2">
+                                <i class="fa-solid fa-chevron-left"></i>
+                                <span>Sebelumnya</span>
+                            </button>
+
+                            <button id="next-btn" onclick="navigateQuestion(1)" class="px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition flex items-center gap-2">
+                                <span>Berikutnya</span>
+                                <i class="fa-solid fa-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Question Palette Grid -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 sticky top-20">
+                        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider mb-4 flex items-center justify-between">
+                            <span>Navigasi Soal</span>
+                            <i class="fa-solid fa-grip text-slate-400"></i>
+                        </h3>
+
+                        <!-- Question Grid Matrix -->
+                        <div id="question-grid" class="grid grid-cols-5 gap-2 mb-6 max-h-[300px] overflow-y-auto pr-1 custom-scrollbar">
+                            <!-- Dynamic Question Buttons -->
+                        </div>
+
+                        <!-- Legend -->
+                        <div class="border-t pt-4 space-y-2 text-[11px] text-slate-600">
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-blue-600 inline-block"></span>
+                                <span>Sudah Dijawab</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-amber-500 inline-block"></span>
+                                <span>Ragu-Ragu</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="w-3 h-3 rounded bg-slate-100 border border-slate-300 inline-block"></span>
+                                <span>Belum Dijawab</span>
+                            </div>
+                        </div>
+
+                        <button onclick="openSubmitModal()" class="w-full mt-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-md shadow-emerald-500/20 transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>Selesaikan Ujian</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. RESULT & REVIEW SCREEN -->
+        <div id="result-screen" class="hidden space-y-6 max-w-4xl mx-auto w-full">
+            <!-- Result Summary Card -->
+            <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 text-center relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-3 bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-500"></div>
+                
+                <!-- Status Server Webhook Batch -->
+                <div id="submit-status" class="mb-4 hidden p-3 rounded-xl text-xs font-medium transition-all">
+                    <!-- Dynamic server status badge -->
+                </div>
+
+                <!-- Admin URL Config Trigger Button -->
+                <div class="mb-4 flex justify-end">
+                    <button onclick="openAdminPasswordModal()" class="text-xs text-slate-500 hover:text-blue-600 font-medium inline-flex items-center gap-1.5 transition px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200">
+                        <i class="fa-solid fa-lock text-amber-500"></i> Ganti URL (Admin)
+                    </button>
+                </div>
+
+                <!-- Webhook URL Config Input -->
+                <div id="webhook-config-panel" class="hidden mb-6 bg-slate-50 p-4 rounded-xl border border-slate-200 text-left space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-link text-blue-600"></i> URL Google Apps Script Web App
+                        </label>
+                    </div>
+                    <div class="flex gap-2">
+                        <input type="text" id="custom-script-url" 
+                            class="flex-1 px-3 py-2 bg-white border border-slate-300 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 outline-none font-mono"
+                            placeholder="https://script.google.com/macros/s/.../exec">
+                        <button onclick="resendResultData()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold shrink-0 transition flex items-center gap-1">
+                            <i class="fa-solid fa-paper-plane"></i> Kirim Ulang
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between text-[11px] text-slate-500">
+                        <p>Pastikan URL Web App Anda diset ke <strong>"Anyone" (Siapa Saja)</strong> agar data Nama & Nilai bisa masuk tanpa kendala.</p>
+                        <button onclick="closeAdminConfigPanel()" class="text-xs text-rose-600 hover:underline shrink-0 ml-2 font-medium">Sembunyikan</button>
+                    </div>
+                </div>
+
+                <!-- Personalized Greeting & Motivation -->
+                <div class="mb-6">
+                    <div class="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3 text-2xl shadow-sm">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800">Ujian Selesai!</h2>
+                    <p class="text-xs text-slate-500 mt-1">Hasil ujian Anda telah dikalkulasi secara otomatis.</p>
+                </div>
+
+                <!-- Score Grid -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-xs font-medium text-slate-500 block">Skor Akhir</span>
+                        <span id="res-score" class="text-3xl font-extrabold text-blue-600 mt-1 block">0</span>
+                    </div>
+                    <div class="p-4 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <span class="text-xs font-medium text-emerald-700 block">Benar</span>
+                        <span id="res-correct" class="text-3xl font-extrabold text-emerald-600 mt-1 block">0</span>
+                    </div>
+                    <div class="p-4 bg-rose-50 rounded-xl border border-rose-200">
+                        <span class="text-xs font-medium text-rose-700 block">Salah</span>
+                        <span id="res-wrong" class="text-3xl font-extrabold text-rose-600 mt-1 block">0</span>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                        <span class="text-xs font-medium text-slate-500 block">Waktu Pengerjaan</span>
+                        <span id="res-time" class="text-xl font-bold text-slate-700 mt-2 block font-mono">00:00</span>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-3">
+                    <button onclick="toggleDiscussionSection()" class="w-full sm:w-auto px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-semibold shadow-md transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-list-check"></i>
+                        <span>Lihat Pembahasan Soal</span>
+                    </button>
+                    <button onclick="restartExam()" class="w-full sm:w-auto px-6 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-rotate-left"></i>
+                        <span>Ulangi Ujian</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Discussion Section (Initially Hidden) -->
+            <div id="discussion-section" class="hidden space-y-4">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2">
+                    <i class="fa-solid fa-book-open text-blue-600"></i> Pembahasan Soal
+                </h3>
+                <div id="review-container" class="space-y-4">
+                    <!-- Dynamic Review Cards -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- SUBMIT CONFIRMATION MODAL -->
+    <div id="submit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all scale-100">
+            <div class="w-14 h-14 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Selesaikan Ujian?</h3>
+            <p id="modal-summary-text" class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Anda telah menjawab <span id="modal-answered-count" class="font-bold text-slate-700">0</span> dari <span id="modal-total-count">50</span> soal. Pastikan semua jawaban sudah diperiksa kembali.
+            </p>
+
+            <div class="mt-6 flex items-center space-x-3">
+                <button onclick="closeSubmitModal()" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-sm transition">
+                    Batal
+                </button>
+                <button onclick="submitExam()" class="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl text-sm shadow-md shadow-emerald-500/20 transition">
+                    Ya, Kumpulkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMEOUT ALERT MODAL -->
+    <div id="timeout-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-hourglass-end animate-bounce"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Waktu Telah Habis!</h3>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Waktu pengerjaan ujian Anda telah berakhir. Sistem akan mengumpulkan jawaban Anda secara otomatis.
+            </p>
+            <button onclick="acknowledgeTimeout()" class="mt-6 w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-sm shadow-md transition">
+                Lihat Hasil Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- VIOLATION WARNING MODAL -->
+    <div id="violation-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border-2 border-rose-500 animate-pulse">
+            <div class="w-14 h-14 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-800">Peringatan Pelanggaran!</h3>
+            <p id="violation-message" class="text-xs text-slate-600 mt-2 leading-relaxed italic">
+                "Berbuatlah sesuatu dengan jujur agar Ilmu yang engkau dapat bermanfaat untukmu."
+            </p>
+            <p class="text-xs font-semibold text-rose-600 mt-3">
+                Pelanggaran ke-<span id="violation-count-text">1</span> dari 3
+            </p>
+            <button onclick="closeViolationModal()" class="mt-6 w-full py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow-md transition">
+                Saya Mengerti & Kembali ke Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- VIOLATION LIMIT EXCEEDED MODAL -->
+    <div id="violation-limit-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 text-center border-2 border-rose-600">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl">
+                <i class="fa-solid fa-ban"></i>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-800">Ujian Dihentikan Otomatis</h3>
+            <div class="bg-rose-50 border border-rose-200 rounded-xl p-4 my-4 text-left space-y-2">
+                <p class="text-xs font-semibold text-rose-800">
+                    "Berbuatlah sesuatu dengan jujur agar Ilmu yang engkau dapat bermanfaat untukmu."
+                </p>
+                <p class="text-xs font-bold text-rose-700">
+                    Batas keluar masuk ujian sudah maksimal, Nilai sudah terekam.
+                </p>
+            </div>
+            <button onclick="acknowledgeViolationLimit()" class="w-full py-3 bg-rose-600 hover:bg-rose-700 text-white font-semibold rounded-xl text-sm shadow-md transition">
+                Lihat Hasil
+            </button>
+        </div>
+    </div>
+
+    <!-- ADMIN PASSWORD MODAL -->
+    <div id="admin-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center">
+            <div class="w-12 h-12 bg-amber-100 text-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-user-shield"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">Akses Pengaturan Admin</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Masukkan sandi untuk mengubah URL Google Apps Script</p>
+
+            <form onsubmit="handleAdminPasswordSubmit(event)" class="space-y-3">
+                <div>
+                    <input type="password" id="admin-password-input" placeholder="Masukkan Sandi Admin" required
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-center focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <p id="admin-password-error" class="hidden text-rose-600 text-[11px] mt-1.5 font-medium flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation"></i> Sandi salah! Silakan coba lagi.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <button type="button" onclick="closeAdminPasswordModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-md shadow-blue-500/20 transition">
+                        Konfirmasi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- DISCUSSION PASSWORD MODAL -->
+    <div id="discussion-password-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 text-center transform transition-all scale-100">
+            <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-3 text-xl">
+                <i class="fa-solid fa-lock"></i>
+            </div>
+            <h3 class="text-base font-bold text-slate-800">Akses Pembahasan Soal</h3>
+            <p class="text-xs text-slate-500 mt-1 mb-4">Masukkan sandi untuk membuka pembahasan soal ujian.</p>
+
+            <form onsubmit="handleDiscussionPasswordSubmit(event)" class="space-y-3">
+                <div>
+                    <input type="password" id="discussion-password-input" placeholder="Masukkan Sandi Pembahasan" required
+                        class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-300 rounded-xl text-xs text-center focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none transition">
+                    <p id="discussion-password-error" class="hidden text-rose-600 text-[11px] mt-1.5 font-medium flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-circle-exclamation"></i> Sandi salah! Akses ditolak.
+                    </p>
+                </div>
+
+                <div class="flex items-center gap-2 pt-1">
+                    <button type="button" onclick="closeDiscussionPasswordModal()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition">
+                        Batal
+                    </button>
+                    <button type="submit" class="flex-1 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl text-xs shadow-md shadow-blue-500/20 transition">
+                        Buka Akses
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- IMAGE PREVIEW MODAL -->
+    <div id="image-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-slate-900/80 backdrop-blur-sm p-4" onclick="closeImageModal()">
+        <div class="relative max-w-4xl max-h-[90vh] p-2 bg-white rounded-2xl shadow-2xl" onclick="event.stopPropagation()">
+            <button onclick="closeImageModal()" class="absolute -top-3 -right-3 w-8 h-8 bg-rose-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-rose-700 transition">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <img id="image-modal-src" src="" alt="Gambar Diperbesar" class="max-h-[85vh] w-auto rounded-xl object-contain">
+        </div>
+    </div>
+
+    <script>
+        // Pengecekan Batas Waktu Akses (15 Oktober 2026 pukul 12:00:00)
+        function checkExamExpiration() {
+            const targetDate = new Date('2026-10-15T12:00:00');
+            const now = new Date();
+            if (now >= targetDate) {
+                document.getElementById('expiration-overlay').classList.remove('hidden');
+                return true;
+            }
+            return false;
+        }
+
+        // Jalankan saat halaman dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            checkExamExpiration();
+        });
+
+        // Database Soal Terkelompok berdasarkan Tipe Soal
+        const questionBank = {
+            pilihanGanda: [
+  {
+    "id": 1791377055101,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C1",
+    "question": "Kata dasar 'tulis' jika diberi awalan 'me-' yang mengalami peluluhan huruf awal secara tepat akan menjadi...",
+    "options": [
+      "Metulis",
+      "Menulis",
+      "Menytulis",
+      "Mengtulis"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Huruf awal 't' pada kata dasar 'tulis' melebur menjadi 'men-' saat mendapatkan awalan me-, sehingga menjadi 'menulis'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055102,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C2",
+    "question": "Manakah bentuk penggunaan akhiran '-kan' yang menunjukkan makna melakukan tindakan untuk orang lain?",
+    "options": [
+      "Mendengarkan musik pop",
+      "Bawakan tas ibu ke kamar",
+      "Merasakan hawa dingin",
+      "Melihatkan pemandangan"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Akhiran '-kan' pada kata 'bawakan' memiliki arti melakukan suatu tindakan (membawa) untuk orang lain (ibu).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055103,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C2",
+    "question": "Fungsi utama dari penggunaan akhiran '-lah' pada sebuah kalimat perintah (imperatif) adalah...",
+    "options": [
+      "Menyatakan kalimat tanya",
+      "Memperhalus atau melembutkan perintah",
+      "Menyebutkan jumlah benda",
+      "Menunjukkan kepemilikan"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Penambahan akhiran '-lah' pada kalimat perintah berfungsi untuk memberikan kesan yang lebih halus dan sopan kepada lawan bicara.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055104,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Sapu ... halaman rumah itu sampai bersih sebelum jam istirahat!",
+    "options": [
+      "-lah",
+      "-kan",
+      "-an",
+      "-i"
+    ],
+    "statements": [],
+    "correctAnswer": 0,
+    "discussion": "Kata perintah 'sapu' dipadukan dengan akhiran '-lah' menjadi 'sapulah' untuk membentuk kalimat perintah yang baik dan halus.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055105,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Budi ... buku cerita ke dalam tas sekolahnya agar tidak basah terkena hujan.",
+    "options": [
+      "memasukkan",
+      "memasuki",
+      "memasuklah",
+      "dimasukkan"
+    ],
+    "statements": [],
+    "correctAnswer": 0,
+    "discussion": "Penggunaan gabungan imbuhan me-...-kan yang tepat pada kata dasar 'masuk' adalah 'memasukkan'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055106,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C2",
+    "question": "Awalan 'me-' akan berubah menjadi 'meng-' jika bertemu dengan kata dasar yang diawali oleh huruf...",
+    "options": [
+      "b, p, f, v",
+      "s, t, p, k",
+      "vokal (a, i, u, e, o) serta huruf g, h, k",
+      "d, j, l, r"
+    ],
+    "statements": [],
+    "correctAnswer": 2,
+    "discussion": "Awalan me- berubah menjadi 'meng-' ketika bertemu huruf vokal serta huruf konsonan tertentu seperti g, h, dan k.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055107,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Tolong ... lampu kamar tamu itu sebelum kamu tidur malam ini!",
+    "options": [
+      "matikan",
+      "mematikan",
+      "matilah",
+      "terpadamkan"
+    ],
+    "statements": [],
+    "correctAnswer": 0,
+    "discussion": "Kalimat perintah meminta seseorang melakukan tindakan menggunakan kata kerja berakhiran '-kan', yaitu 'matikan'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055108,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Kata dasar 'sapu' jika diberi awalan 'me-' secara baku akan berubah menjadi...",
+    "options": [
+      "Mesapu",
+      "Mensapu",
+      "Menyapu",
+      "Mengsapu"
+    ],
+    "statements": [],
+    "correctAnswer": 2,
+    "discussion": "Huruf awal 's' pada kata dasar 'sapu' melebur menjadi 'meny-' saat mendapat awalan me-, sehingga menjadi 'menyapu'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055109,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Duduk ... di kursi yang sudah disiapkan oleh panitia acara!",
+    "options": [
+      "-kan",
+      "-lah",
+      "me-",
+      "mem-"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Akhiran '-lah' tepat disematkan pada kata 'duduk' untuk membentuk kalimat perintah yang sopan ('duduklah').",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055110,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C2",
+    "question": "Manakah bentuk gabungan imbuhan me-...-kan yang memiliki arti 'membuat jadi' atau 'menjadikan'?",
+    "options": [
+      "Merapikan",
+      "Mendengarkan",
+      "Menatap",
+      "Membaca"
+    ],
+    "statements": [],
+    "correctAnswer": 0,
+    "discussion": "Kata 'merapikan' berasal dari kata dasar 'rapi' yang diberi imbuhan me-...-kan dengan makna membuat sesuatu menjadi rapi.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055111,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Kata 'putar' jika diberi akhiran '-kan' untuk membentuk kalimat perintah yang tepat adalah...",
+    "options": [
+      "Putar",
+      "Putarkan",
+      "Memutar",
+      "Putarlah"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Akhiran '-kan' pada kata 'putarkan' menunjukkan kalimat perintah melakukan pemutaran benda untuk orang lain.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055112,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Ibu ... baju seragam sekolah adik yang sudah kering dan bersih.",
+    "options": [
+      "setrika",
+      "mensetrika",
+      "menyetrika",
+      "mengesetrika"
+    ],
+    "statements": [],
+    "correctAnswer": 2,
+    "discussion": "Kata dasar 'setrika' berawalan huruf 's'. Sesuai kaidah, huruf 's' melebur menjadi 'meny-' saat mendapat awalan me- menjadi 'menyetrika'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055113,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C2",
+    "question": "Perhatikan kalimat berikut: 'Buka... pintu gerbang itu sekarang!' Akhiran yang paling tepat untuk mengisi bagian rumpang adalah...",
+    "options": [
+      "-kan",
+      "-lah",
+      "-an",
+      "-i"
+    ],
+    "statements": [],
+    "correctAnswer": 1,
+    "discussion": "Untuk memperhalus bentuk perintah pada kata dasar 'buka', akhiran '-lah' menjadi pilihan paling tepat ('bukalah').",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055114,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Awalan 'me-' jika bertemu dengan kata dasar 'koreksi' akan berubah menjadi bentuk baku...",
+    "options": [
+      "Mekoreksi",
+      "Menkoreksi",
+      "Mengoreksi",
+      "Memkoreksi"
+    ],
+    "statements": [],
+    "correctAnswer": 2,
+    "discussion": "Huruf 'k' pada kata dasar 'koreksi' melebur dan berubah menjadi 'meng-' saat diberi awalan me-, membentuk kata 'mengoreksi'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 1791377055115,
+    "type": "single",
+    "typeName": "Pilihan Ganda",
+    "cognitiveLevel": "C3",
+    "question": "Kerjakan ... semua soal latihan di buku tugasmu dengan teliti!",
+    "options": [
+      "-lah",
+      "-kan",
+      "-an",
+      "-nya"
+    ],
+    "statements": [],
+    "correctAnswer": 0,
+    "discussion": "Akhiran '-lah' digunakan untuk menegaskan dan memperhalus nada kalimat perintah pada kata kerja 'kerjakan' menjadi 'kerjakanlah'.",
+    "showImage": false,
+    "imageUrl": ""
+  }
+            ],
+            pilihanGandaKompleks: [
+  {
+    "id": 101,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Manakah di antara pembentukan kata berimbuhan 'me-' berikut yang mengalami peluluhan huruf awal pada kata dasarnya? (Pilih semua jawaban yang benar)",
+    "options": [
+      "me- + tulis -> menulis",
+      "me- + sapu -> menyapu",
+      "me- + baca -> membaca",
+      "me- + potong -> memotong"
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Kata dasar yang berawalan huruf K, T, S, P (KTSP) akan luluh saat diberi awalan me- (t->n, s->ny, p->m, k->ng). Pada pilihan A, B, dan D huruf t, s, dan p luluh. Sedangkan pada pilihan C, huruf 'b' tidak luluh melainkan membentuk 'mem-'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 102,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Manakah di antara kata berimbuhan di bawah ini yang menggunakan akhiran '-lah' dengan fungsi memperhalus kalimat perintah? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Duduklah di tempat yang telah disediakan!",
+      "Bukalah pintu kelas itu dengan perlahan!",
+      "Dialah anak yang paling rajin di kelas.",
+      "Kerjakanlah tugasmu tepat waktu!"
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Kalimat A, B, dan D merupakan kalimat perintah (imperatif) yang menggunakan akhiran '-lah' untuk memperhalus nada perintah. Pilihan C menggunakan '-lah' sebagai penegas subjek pada kalimat berita.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 103,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Manakah bentuk penggunaan akhiran '-kan' yang memiliki makna 'melakukan tindakan untuk orang lain'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Bawakan tas ibu yang berat itu!",
+      "Ambilkan buku cerita milik adik di meja!",
+      "Budi mendengarkan musik di radio.",
+      "Tuliskan surat izin untuk temanmu!"
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Kata 'bawakan', 'ambilkan', dan 'tuliskan' bermakna melakukan pekerjaan/tindakan demi kepentingan orang lain (benevolatif). Sedangkan 'mendengarkan' berarti melakukan tindakan untuk diri sendiri.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 104,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Awalan 'me-' akan berubah bentuk menjadi 'meng-' jika bergabung dengan kata dasar yang berawalan huruf vokal (a, i, u, e, o) atau huruf g, h, k. Manakah contoh yang benar? (Pilih semua jawaban yang benar)",
+    "options": [
+      "me- + ambil -> mengambil",
+      "me- + hitung -> menghitung",
+      "me- + goreng -> menggoreng",
+      "me- + bantu -> membantu"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Kata dasar 'ambil' (vokal a), 'hitung' (huruf h), dan 'goreng' (huruf g) semuanya berubah menjadi 'meng-'. Sementara 'bantu' berawalan huruf 'b' sehingga berubah menjadi 'mem-' (membantu).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 105,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Manakah gabungan imbuhan me-...-kan di bawah ini yang memiliki makna 'membuat jadi' atau 'menjadikan sesuatu dalam keadaan tertentu'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Merapikan meja belajar",
+      "Bersihkan papan tulis",
+      "Membuatkan adik mainan",
+      "Mencereskan/Memutihkan pakaian"
+    ],
+    "correctAnswer": [0, 3],
+    "discussion": "Kata 'merapikan' berarti membuat jadi rapi dan 'memutihkan' berarti membuat jadi putih (kausatif). Pilihan B tidak memakai awalan 'me-', dan pilihan C memiliki makna membuatkan sesuatu untuk orang lain.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 106,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Pilihlah kata berimbuhan 'me-' berikut yang bentuk kata dasarnya diawali oleh huruf yang TIDAK luluh! (Pilih semua jawaban yang benar)",
+    "options": [
+      "Mendengar (kata dasar: dengar)",
+      "Membuka (kata dasar: buka)",
+      "Menyanyi (kata dasar: sanyi/nyanyi)",
+      "Melihat (kata dasar: lihat)"
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Huruf d, b, dan l bukan merupakan bagian dari hukum KTSP sehingga huruf utamanya tidak luluh/hilang saat diberi awalan me- (mendengar, membuka, melihat). Sementara 'menyanyi' berasal dari kata dasar berawalan huruf 's' yang luluh menjadi 'ny'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 107,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Manakah di antara kalimat berikut yang memuat imbuhan me- dengan penulisan kata yang BENAR sesuai kaidah bahasa Indonesia? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Ibu sedang memotong sayuran di dapur.",
+      "Siswa kelas 5 sedang mengetik laporan.",
+      "Ayah mempukul paku dengan palu.",
+      "Pak Guru sedang mengoreksi hasil ujian."
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Penulisan 'memotong' (p luluh), 'mengetik' (k luluh), dan 'mengoreksi' (k luluh) sudah tepat. Pilihan C salah karena kata 'pukul' seharusnya luluh menjadi 'memukul', bukan 'mempukul'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 108,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Pilihlah kata kerja imperatif (perintah) yang menggunakan kombinasi atau akhiran '-kan' atau '-lah' secara tepat di bawah ini! (Pilih semua jawaban yang benar)",
+    "options": [
+      "Matikan lampu sebelum pergi!",
+      "Tutupkan jendela ruangan itu!",
+      "Buanglah sampah pada tempatnya!",
+      "Dengarkan penjelasan guru dengan seksama!"
+    ],
+    "correctAnswer": [0, 2, 3],
+    "discussion": "Kata 'matikan', 'buanglah', dan 'dengarkan' merupakan kata kerja imperatif yang tepat dan baku. Pilihan B ('tutupkan') kurang tepat secara konteks perintah menutup jendela (seharusnya 'tutuplah' atau 'tutup').",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 109,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Imbuhan me- berubah bentuk menjadi 'menge-' jika kata dasarnya hanya terdiri dari satu suku kata. Manakah contoh bentuk yang BENAR berikut ini? (Pilih semua jawaban yang benar)",
+    "options": [
+      "me- + cat -> mengecat",
+      "me- + lap -> mengelap",
+      "me- + bom -> mengebom",
+      "me- + sapu -> mengesapu"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Kata 'cat', 'lap', dan 'bom' hanya terdiri dari 1 suku kata sehingga menggunakan bentuk 'menge-'. Sedangkan 'sapu' terdiri dari 2 suku kata dan berubah menjadi 'menyapu'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 110,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Manakah bentuk perubahan kata berimbuhan me- berikut yang tepat apabila bertemu dengan kata dasar berawalan huruf 'P'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "me- + potong -> memotong",
+      "me- + pukul -> memukul",
+      "me- + pegang -> memegang",
+      "me- + pakai -> mempakai"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Huruf 'p' pada kata dasar potong, pukul, dan pegang luluh menjadi 'm' (memotong, memukul, memegang). Pilihan D salah karena huruf 'p' pada 'pakai' tidak diluluhkan (seharusnya 'memakai').",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 111,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Manakah di antara kalimat berikut yang tepat menggunakan gabungan imbuhan me-...-kan? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Adik memasukkan mainannya ke dalam kotak.",
+      "Kakak menanyakan kabar nenek di kampung.",
+      "Ibu membawakan oleh-oleh untuk kami.",
+      "Siswa mendengarkan penjelasan guru."
+    ],
+    "correctAnswer": [0, 1, 2, 3],
+    "discussion": "Semua kalimat di atas menggunakan bentuk imbuhan me-...-kan ('memasukkan', 'menanyakan', 'membawakan', 'mendengarkan') secara tepat dan tata bahasa baku.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 112,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Manakah kata dasar berawalan huruf 'S' di bawah ini yang akan luluh menjadi 'meny-' saat diberi awalan 'me-'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Sapu -> menyapu",
+      "Siram -> menyiram",
+      "Sewa -> menyewa",
+      "Selesai -> menselesai"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Kata 'sapu', 'siram', dan 'sewa' merupakan kata dasar berawalan huruf 's' yang meluluh menjadi 'meny-'. Pilihan D salah karena penulisan baku dari selesai + me- adalah 'menyelesaikan' (me-...-kan).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 113,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Di antara kalimat perintah berikut, manakah yang paling santun karena menggunakan partikel/akhiran '-lah'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Masuklah ke dalam ruangan ujian dengan tertib!",
+      "Bukalah bukumu halaman 25!",
+      "Kerjakan soal ini sekarang!",
+      "Jagalah kebersihan lingkungan sekolah kita!"
+    ],
+    "correctAnswer": [0, 1, 3],
+    "discussion": "Kalimat A, B, dan D menggunakan akhiran '-lah' ('masuklah', 'bukalah', 'jagalah') yang secara khusus berfungsi melembutkan kalimat perintah sehingga terasa lebih santun. Pilihan C tidak menggunakan akhiran '-lah'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 114,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C2",
+    "question": "Manakah kata dasar berawalan huruf 'K' di bawah ini yang luluh menjadi 'meng-' saat diberi imbuhan 'me-'? (Pilih semua jawaban yang benar)",
+    "options": [
+      "Kirim -> mengirim",
+      "Koreksi -> mengoreksi",
+      "Ketik -> mengetik",
+      "Kunci -> menkunci"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Kata 'kirim', 'koreksi', dan 'ketik' luluh huruf K-nya menjadi 'meng-' (mengirim, mengoreksi, mengetik). Pilihan D salah karena huruf K pada 'kunci' seharusnya juga luluh menjadi 'mengunci'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 115,
+    "type": "multiple",
+    "typeName": "Pilihan Ganda Kompleks",
+    "cognitiveLevel": "C3",
+    "question": "Pilihlah pasangan kata dasar dan kata berimbuhan me-...-kan yang BENAR di bawah ini! (Pilih semua jawaban yang benar)",
+    "options": [
+      "Rapi -> merapikan",
+      "Bersih -> membersihkan",
+      "Terang -> menerangkan",
+      "Gelar -> mengelarkan"
+    ],
+    "correctAnswer": [0, 1, 2],
+    "discussion": "Pembentukan 'rapi -> merapikan', 'bersih -> membersihkan', dan 'terang -> menerangkan' sudah tepat. Kata 'gelar' jika diberi me-...-kan menjadi 'menggelarkan' (bukan mengelarkan).",
+    "showImage": false,
+    "imageUrl": ""
+  }
+            ],
+            benarSalah: [
+  {
+    "id": 41,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari setiap pernyataan mengenai kaidah peluluhan huruf KTSP pada awalan me- berikut:",
+    "statements": [
+      { "id": "s1", "text": "Kata dasar berawalan huruf T akan luluh menjadi 'men-' saat diberi awalan me- (contoh: me- + tulis -> menulis)." },
+      { "id": "s2", "text": "Kata dasar berawalan huruf K akan luluh menjadi 'meng-' saat diberi awalan me- (contoh: me- + kirim -> mengirim)." },
+      { "id": "s3", "text": "Kata dasar berawalan huruf B akan luluh menjadi 'mem-' saat diberi awalan me- (contoh: me- + baca -> membaca)." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Peluluhan huruf awal hanya berlaku pada kata dasar berawalan K, T, S, P (KTSP). Huruf B tidak luluh melainkan membentuk bentuk 'mem-' dengan huruf dasar tetap utuh (me- + baca -> membaca).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 42,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari pernyataan mengenai fungsi dan aturan penggunaan akhiran '-lah' berikut:",
+    "statements": [
+      { "id": "s1", "text": "Akhiran '-lah' berfungsi untuk melembutkan atau memperhalus nada perintah dalam sebuah kalimat." },
+      { "id": "s2", "text": "Kalimat yang menggunakan akhiran '-lah' selalu berubah menjadi kalimat tanya." },
+      { "id": "s3", "text": "Kata kerja 'duduk' jika ditambahi akhiran '-lah' menjadi 'duduklah' yang termasuk bentuk kalimat perintah halus." }
+    ],
+    "correctAnswer": { "s1": true, "s2": false, "s3": true },
+    "discussion": "Akhiran '-lah' berfungsi memperhalus nada kalimat perintah (imperatif) agar terasa lebih santun dan sopan, bukan untuk membentuk kalimat tanya.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 43,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari pernyataan tentang makna dan pembentukan akhiran '-kan' berikut:",
+    "statements": [
+      { "id": "s1", "text": "Akhiran '-kan' pada kata 'ambilkan' mengandung makna melakukan tindakan untuk orang lain." },
+      { "id": "s2", "text": "Kata dasar 'bersih' jika diberi imbuhan gabung me-...-kan menjadi 'membersihkan' yang bermakna 'membuat jadi bersih'." },
+      { "id": "s3", "text": "Penggunaan kata 'matikanlah' merupakan gabungan akhiran '-kan' dan '-lah' yang tidak baku dalam bahasa Indonesia." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Kata 'ambilkan' bermakna benefaktif (untuk orang lain), 'membersihkan' bermakna kausatif (membuat jadi bersih), dan penulisan gabungan '-kan' + '-lah' seperti 'matikanlah' adalah bentuk baku yang sah.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 44,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari penulisan kata berimbuhan 'me-' pada kata dasar satu suku kata berikut:",
+    "statements": [
+      { "id": "s1", "text": "Kata dasar 'cat' saat diberi awalan me- berubah menjadi 'mengecat'." },
+      { "id": "s2", "text": "Kata dasar 'lap' saat diberi awalan me- berubah menjadi 'melap'." },
+      { "id": "s3", "text": "Kata dasar 'bom' saat diberi awalan me- berubah menjadi 'mengebom'." }
+    ],
+    "correctAnswer": { "s1": true, "s2": false, "s3": true },
+    "discussion": "Kata dasar yang terdiri dari 1 suku kata (seperti cat, lap, bom) akan mendapatkan imbuhan 'menge-' (mengecat, mengelap, mengebom). Penulisan 'melap' adalah tidak baku.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 45,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari analisis pembentukan kata berimbuhan me- berikut:",
+    "statements": [
+      { "id": "s1", "text": "me- + sapu -> menyapu (huruf S luluh menjadi ny)." },
+      { "id": "s2", "text": "me- + potong -> mempotong (huruf P tidak luluh)." },
+      { "id": "s3", "text": "me- + ketik -> mengetik (huruf K luluh menjadi ng)." }
+    ],
+    "correctAnswer": { "s1": true, "s2": false, "s3": true },
+    "discussion": "Huruf P pada kata 'potong' wajib luluh menjadi 'm', sehingga penulisan baku adalah 'memotong', bukan 'mempotong'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 46,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari fungsi kalimat berimbuhan berikut:",
+    "statements": [
+      { "id": "s1", "text": "'Bukalah pintunya!' merupakan contoh kalimat perintah berakhiran '-lah'." },
+      { "id": "s2", "text": "'Ibu menyiram bunga' memuat kata kerja berimbuhan me- dengan kata dasar 'siram'." },
+      { "id": "s3", "text": "'Budi mempukul bola' adalah contoh penulisan kata berimbuhan me- yang baku." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Kata 'mendengarkan' merupakan kata kerja aktif transitif (bukan pasif). Pernyataan s1 dan s3 sudah tepat.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 47,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari perubahan awalan me- saat bertemu huruf konsonan tertentu berikut:",
+    "statements": [
+      { "id": "s1", "text": "Awalan me- berubah menjadi 'mem-' jika bertemu huruf B, P, F, V (contoh: memegang, memfoto)." },
+      { "id": "s2", "text": "Awalan me- berubah menjadi 'men-' jika bertemu huruf C, D, J, T (contoh: mencuci, mendengar, menjahit, menulis)." },
+      { "id": "s3", "text": "Awalan me- berubah menjadi 'meng-' jika bertemu huruf L, R, M, N." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Pertemuan awalan me- dengan huruf L, R, M, N tidak berubah menjadi 'meng-', melainkan tetap 'me-' tanpa penambahan konsonan nasal (contoh: melihat, merawat, memasak, menari).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 48,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari penggunaan bentuk imbuhan me-...-kan berikut:",
+    "statements": [
+      { "id": "s1", "text": "Kata 'merapikan' terbentuk dari imbuhan me-...-kan dan kata dasar 'rapi'." },
+      { "id": "s2", "text": "Kata 'memasukkan' terbentuk dari imbuhan me-...-kan dan kata dasar 'masuk'." },
+      { "id": "s3", "text": "Kata 'menanyakan' memiliki kata dasar 'tanya' yang huruf T-nya tidak luluh." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Pada kata 'menanyakan', huruf awal T dari kata dasar 'tanya' mengalami peluluhan menjadi 'men-' (t->n).",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 49,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari klausa atau kalimat berimbuhan berikut:",
+    "statements": [
+      { "id": "s1", "text": "'Buanglah sampah di tempatnya' adalah kalimat ajakan/perintah halus." },
+      { "id": "s2", "text": "'Ibu menyiram bunga' memuat kata kerja berimbuhan me- dengan kata dasar 'siram'." },
+      { "id": "s3", "text": "'Budi mempukul bola' adalah contoh penulisan kata berimbuhan me- yang baku." }
+    ],
+    "correctAnswer": { "s1": true, "s2": true, "s3": false },
+    "discussion": "Penulisan 'mempukul' tidak baku karena kata dasar 'pukul' berawalan P yang seharusnya luluh menjadi 'memukul'.",
+    "showImage": false,
+    "imageUrl": ""
+  },
+  {
+    "id": 50,
+    "type": "true_false",
+    "typeName": "Pernyataan Benar / Salah",
+    "question": "Tentukan kebenaran dari analisis imbuhan gabung dan akhiran berikut:",
+    "statements": [
+      { "id": "s1", "text": "Akhiran '-kan' tidak bisa dipakai bersamaan dengan awalan 'me-'." },
+      { "id": "s2", "text": "Akhiran '-lah' dapat ditempelkan pada kata kerja maupun kata perintah." },
+      { "id": "s3", "text": "Kata dasar berawalan huruf K selalu luluh menjadi 'meng-' saat diberi awalan me- (contoh: koreksi -> mengoreksi)." }
+    ],
+    "correctAnswer": { "s1": false, "s2": true, "s3": true },
+    "discussion": "Akhiran '-kan' sangat umum digunakan bersamaan dengan awalan 'me-' membentuk imbuhan gabung/konfiks me-...-kan (seperti merapikan, membawakan, mendengarkan).",
+    "showImage": false,
+    "imageUrl": ""
+  }
+]
+        };
+
+        const questionsData = [
+            ...questionBank.pilihanGanda,
+            ...questionBank.pilihanGandaKompleks,
+            ...questionBank.benarSalah
+        ];
+
+        let currentQuestionIndex = 0;
+        let userAnswers = {};
+        let markedQuestions = new Set();
+        let timerInterval = null;
+        let timeRemaining = 30 * 60;
+        let userName = "";
+        let defaultScriptUrl = "https://script.google.com/macros/s/AKfycbx3bGR9zxdQ8cHcyCuzk5YpT_J_NHaAVT5jgpRLd7xqziTosMR0ioNcfPF0_Cjphkcw/exec";
+
+        // Sistem Pelanggaran & Fullscreen Tracker
+        let violationCount = 0;
+        const maxViolations = 3;
+        let isExamActive = false;
+        let isExamSubmitted = false;
+
+        document.getElementById('total-questions-info').innerText = questionsData.length + " soal";
+        document.getElementById('total-badge').innerText = questionsData.length;
+
+        // FUNGSI LAYAR PENUH (FULLSCREEN)
+        function requestFullScreen() {
+            // Cek kadaluarsa sebelum memulai ujian
+            if (checkExamExpiration()) return;
+
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen();
+            } else if (elem.msRequestFullscreen) {
+                elem.msRequestFullscreen();
+            }
+
+            document.getElementById('start-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+        }
+
+        // DETEKSI PELANGGARAN: KELUAR FULLSCREEN ATAU PERPINDAHAN TAB / LATAR BELAKANG
+        document.addEventListener('fullscreenchange', handleViolationCheck);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                handleViolationCheck();
+            }
+        });
+
+        function handleViolationCheck() {
+            // Hanya jalankan jika ujian sedang berlangsung dan belum dikumpulkan
+            if (!isExamActive || isExamSubmitted) return;
+
+            violationCount++;
+            document.getElementById('violation-badge').innerText = violationCount;
+
+            if (violationCount >= maxViolations) {
+                // Hentikan ujian & kirim nilai secara otomatis
+                isExamActive = false;
+                clearInterval(timerInterval);
+                document.getElementById('violation-limit-modal').classList.remove('hidden');
+                autoSubmitDueToViolation();
+            } else {
+                document.getElementById('violation-count-text').innerText = violationCount;
+                document.getElementById('violation-modal').classList.remove('hidden');
+            }
+        }
+
+        function closeViolationModal() {
+            document.getElementById('violation-modal').classList.add('hidden');
+            // Coba kembalikan ke fullscreen
+            if (!document.fullscreenElement) {
+                const elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(() => {});
+                }
+            }
+        }
+
+        function autoSubmitDueToViolation() {
+            // Kalkulasi nilai dan kirim langsung
+            isExamSubmitted = true;
+            calculateAndSendResult();
+        }
+
+        function acknowledgeViolationLimit() {
+            document.getElementById('violation-limit-modal').classList.add('hidden');
+            showResultScreen();
+        }
+
+        // Modal Gambar Preview
+        function openImageModal(src) {
+            document.getElementById('image-modal-src').src = src;
+            document.getElementById('image-modal').classList.remove('hidden');
+        }
+
+        function closeImageModal() {
+            document.getElementById('image-modal').classList.add('hidden');
+        }
+
+        function handleStartExam(e) {
+            e.preventDefault();
+            if (checkExamExpiration()) return;
+
+            const inputName = document.getElementById('user-name').value.trim();
+            if(!inputName) return;
+
+            userName = inputName;
+            document.getElementById('nav-user-name').innerText = userName;
+
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('exam-app').classList.remove('hidden');
+            document.getElementById('header-exam-info').classList.remove('hidden');
+
+            isExamActive = true;
+            initTimer();
+            renderQuestion();
+            renderQuestionGrid();
+        }
+
+        function initTimer() {
+            timerInterval = setInterval(() => {
+                // Cek waktu kedaluwarsa secara berkala
+                if (checkExamExpiration()) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+
+                timeRemaining--;
+                let mins = Math.floor(timeRemaining / 60);
+                let secs = timeRemaining % 60;
+                document.getElementById('timer').innerText = `${mins < 10 ? '0' : ''}${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    isExamActive = false;
+                    document.getElementById('timeout-modal').classList.remove('hidden');
+                    autoSubmitDueToTimeout();
+                }
+            }, 1000);
+        }
+
+        function autoSubmitDueToTimeout() {
+            isExamSubmitted = true;
+            calculateAndSendResult();
+        }
+
+        function acknowledgeTimeout() {
+            document.getElementById('timeout-modal').classList.add('hidden');
+            showResultScreen();
+        }
+
+        function renderQuestion() {
+            const q = questionsData[currentQuestionIndex];
+            document.getElementById('question-number-badge').innerText = `Soal ${currentQuestionIndex + 1}`;
+            document.getElementById('question-type-badge').innerText = q.typeName || 'Pilihan Ganda';
+            document.getElementById('question-container').innerText = q.question;
+
+            // Gambar
+            const imgContainer = document.getElementById('question-image-container');
+            const imgElem = document.getElementById('question-image');
+            if (q.showImage && q.imageUrl) {
+                imgElem.src = q.imageUrl;
+                imgContainer.classList.remove('hidden');
+            } else {
+                imgContainer.classList.add('hidden');
+            }
+
+            // Flag / Ragu
+            const flagBtn = document.getElementById('flag-btn');
+            if (markedQuestions.has(q.id)) {
+                flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition bg-amber-500 border-amber-500 text-white";
+            } else {
+                flagBtn.className = "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition bg-slate-50 border-slate-300 text-slate-600 hover:bg-slate-100";
+            }
+
+            // Options
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+
+            if (q.type === 'single') {
+                q.options.forEach((opt, idx) => {
+                    const isSelected = userAnswers[q.id] === idx;
+                    const optBtn = document.createElement('button');
+                    optBtn.className = `w-full text-left p-4 rounded-xl border transition flex items-start gap-3 ${isSelected ? 'bg-blue-50 border-blue-500 text-blue-900 font-semibold shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`;
+                    optBtn.onclick = () => selectSingleAnswer(q.id, idx);
+                    optBtn.innerHTML = `
+                        <span class="w-6 h-6 rounded-full border text-xs flex items-center justify-center shrink-0 ${isSelected ? 'bg-blue-600 border-blue-600 text-white font-bold' : 'bg-white border-slate-300 text-slate-500'}">${String.fromCharCode(65 + idx)}</span>
+                        <span class="text-sm leading-relaxed">${opt}</span>
+                    `;
+                    optContainer.appendChild(optBtn);
+                });
+            } else if (q.type === 'multiple') {
+                const currentAns = userAnswers[q.id] || [];
+                q.options.forEach((opt, idx) => {
+                    const isSelected = currentAns.includes(idx);
+                    const optBtn = document.createElement('button');
+                    optBtn.className = `w-full text-left p-4 rounded-xl border transition flex items-start gap-3 ${isSelected ? 'bg-blue-50 border-blue-500 text-blue-900 font-semibold shadow-sm' : 'bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100'}`;
+                    optBtn.onclick = () => selectMultipleAnswer(q.id, idx);
+                    optBtn.innerHTML = `
+                        <div class="w-5 h-5 rounded border text-xs flex items-center justify-center shrink-0 mt-0.5 ${isSelected ? 'bg-blue-600 border-blue-600 text-white' : 'bg-white border-slate-300'}">
+                            ${isSelected ? '<i class="fa-solid fa-check text-[10px]"></i>' : ''}
+                        </div>
+                        <span class="text-sm leading-relaxed">${opt}</span>
+                    `;
+                    optContainer.appendChild(optBtn);
+                });
+           } else if (q.type === 'true_false') {
+    const currentAns = userAnswers[q.id] || {};
+    
+    const tableContainer = document.createElement('div');
+    tableContainer.className = 'overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm';
+
+    let tableHTML = `
+        <div class="bg-slate-100 px-4 py-3 border-b border-slate-200 flex items-center justify-between text-xs font-bold text-slate-700 uppercase tracking-wider">
+            <span class="flex-1">Pernyataan</span>
+            <div class="flex items-center gap-2 sm:gap-4 shrink-0 w-36 sm:w-48 justify-center">
+                <span class="w-16 sm:w-20 text-center text-emerald-700">Benar</span>
+                <span class="w-16 sm:w-20 text-center text-rose-700">Salah</span>
+            </div>
+        </div>
+        <div class="divide-y divide-slate-100">
+    `;
+
+    const statements = q.statements || [];
+
+    statements.forEach((stmt, idx) => {
+        const stmtVal = currentAns[stmt.id];
+        const isTrue = stmtVal === true;
+        const isFalse = stmtVal === false;
+
+        const safeStmtId = String(stmt.id).replace(/'/g, "\\'");
+
+        tableHTML += `
+            <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-slate-50/80 transition">
+                <div class="text-xs text-slate-800 font-medium leading-relaxed flex-1 flex gap-2">
+                    <span class="font-bold text-slate-400 shrink-0">${idx + 1}.</span>
+                    <span>${stmt.text}</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 justify-end sm:justify-center">
+                    <button type="button" onclick="setTrueFalseAnswer(${q.id}, '${safeStmtId}', true)" 
+                        class="w-16 sm:w-20 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 border ${
+                            isTrue 
+                            ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-500/20 ring-2 ring-emerald-500/30' 
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-emerald-50 hover:border-emerald-300 hover:text-emerald-700'
+                        }">
+                        <i class="fa-solid fa-check ${isTrue ? 'inline-block' : 'hidden'} text-[10px]"></i>
+                        <span>BENAR</span>
+                    </button>
+                    <button type="button" onclick="setTrueFalseAnswer(${q.id}, '${safeStmtId}', false)" 
+                        class="w-16 sm:w-20 py-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 border ${
+                            isFalse 
+                            ? 'bg-rose-600 text-white border-rose-600 shadow-md shadow-rose-500/20 ring-2 ring-rose-500/30' 
+                            : 'bg-slate-50 border-slate-200 text-slate-600 hover:bg-rose-50 hover:border-rose-300 hover:text-rose-700'
+                        }">
+                        <i class="fa-solid fa-xmark ${isFalse ? 'inline-block' : 'hidden'} text-[10px]"></i>
+                        <span>SALAH</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    });
+
+    tableHTML += `</div>`;
+    tableContainer.innerHTML = tableHTML;
+    optContainer.appendChild(tableContainer);
+}
+            // Navigation Buttons State
+            document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+            document.getElementById('prev-btn').style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+
+            updateProgressSummary();
+        }
+
+        function selectSingleAnswer(qId, idx) {
+            userAnswers[qId] = idx;
+            renderQuestion();
+            renderQuestionGrid();
+        }
+
+        function selectMultipleAnswer(qId, idx) {
+            let currentAns = userAnswers[qId] ? [...userAnswers[qId]] : [];
+            if (currentAns.includes(idx)) {
+                currentAns = currentAns.filter(i => i !== idx);
+            } else {
+                currentAns.push(idx);
+            }
+            userAnswers[qId] = currentAns;
+            renderQuestion();
+            renderQuestionGrid();
+        }
+
+        function setTrueFalseAnswer(qId, stmtId, val) {
+		if (!userAnswers[qId]) {
+			userAnswers[qId] = {};
+		}
+		userAnswers[qId][stmtId] = val;
+		renderQuestion();
+		renderQuestionGrid();
+	}
+
+        function toggleMarkCurrentQuestion() {
+            const qId = questionsData[currentQuestionIndex].id;
+            if (markedQuestions.has(qId)) {
+                markedQuestions.delete(qId);
+            } else {
+                markedQuestions.add(qId);
+            }
+            renderQuestion();
+            renderQuestionGrid();
+        }
+
+        function navigateQuestion(dir) {
+            const newIndex = currentQuestionIndex + dir;
+            if (newIndex >= 0 && newIndex < questionsData.length) {
+                currentQuestionIndex = newIndex;
+                renderQuestion();
+            }
+        }
+
+        function renderQuestionGrid() {
+            const grid = document.getElementById('question-grid');
+            grid.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const isAnswered = isQuestionAnswered(q);
+                const isMarked = markedQuestions.has(q.id);
+                const isCurrent = idx === currentQuestionIndex;
+
+                let btnClass = "h-9 w-full rounded-lg text-xs font-bold transition flex items-center justify-center border ";
+
+                if (isCurrent) {
+                    btnClass += "ring-2 ring-blue-500 ring-offset-1 ";
+                }
+
+                if (isMarked) {
+                    btnClass += "bg-amber-500 border-amber-500 text-white";
+                } else if (isAnswered) {
+                    btnClass += "bg-blue-600 border-blue-600 text-white";
+                } else {
+                    btnClass += "bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200";
+                }
+
+                const btn = document.createElement('button');
+                btn.className = btnClass;
+                btn.innerText = idx + 1;
+                btn.onclick = () => {
+                    currentQuestionIndex = idx;
+                    renderQuestion();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function isQuestionAnswered(q) {
+            const ans = userAnswers[q.id];
+            if (ans === undefined || ans === null) return false;
+            if (q.type === 'single') return true;
+            if (q.type === 'multiple') return Array.isArray(ans) && ans.length > 0;
+            if (q.type === 'true_false') return typeof ans === 'object' && Object.keys(ans).length === q.statements.length;
+            return false;
+        }
+
+        function updateProgressSummary() {
+            let answeredCount = 0;
+            questionsData.forEach(q => {
+                if (isQuestionAnswered(q)) answeredCount++;
+            });
+
+            document.getElementById('answered-badge').innerText = answeredCount;
+            document.getElementById('marked-badge').innerText = markedQuestions.size;
+
+            const pct = Math.round((answeredCount / questionsData.length) * 100);
+            document.getElementById('exam-progress-bar').style.width = `${pct}%`;
+        }
+
+        function openSubmitModal() {
+            let answeredCount = 0;
+            questionsData.forEach(q => {
+                if (isQuestionAnswered(q)) answeredCount++;
+            });
+
+            document.getElementById('modal-answered-count').innerText = answeredCount;
+            document.getElementById('modal-total-count').innerText = questionsData.length;
+            document.getElementById('submit-modal').classList.remove('hidden');
+        }
+
+        function closeSubmitModal() {
+            document.getElementById('submit-modal').classList.add('hidden');
+        }
+
+        function submitExam() {
+            closeSubmitModal();
+            clearInterval(timerInterval);
+            isExamActive = false;
+            isExamSubmitted = true;
+            calculateAndSendResult();
+            showResultScreen();
+        }
+
+        let finalCalculatedScore = 0;
+        let finalCorrectCount = 0;
+        let finalWrongCount = 0;
+        let finalTimeTaken = "";
+
+        function calculateAndSendResult() {
+            let correct = 0;
+            let wrong = 0;
+
+            questionsData.forEach(q => {
+                const ans = userAnswers[q.id];
+                if (q.type === 'single') {
+                    if (ans === q.correctAnswer) correct++;
+                    else wrong++;
+                } else if (q.type === 'multiple') {
+                    if (Array.isArray(ans)) {
+                        const sortedUser = [...ans].sort().join(',');
+                        const sortedCorrect = [...q.correctAnswer].sort().join(',');
+                        if (sortedUser === sortedCorrect) correct++;
+                        else wrong++;
+                    } else {
+                        wrong++;
+                    }
+                } else if (q.type === 'true_false') {
+                    if (ans && typeof ans === 'object') {
+                        let allCorrect = true;
+                        q.statements.forEach(stmt => {
+                            if (ans[stmt.id] !== q.correctAnswer[stmt.id]) {
+                                allCorrect = false;
+                            }
+                        });
+                        if (allCorrect) correct++;
+                        else wrong++;
+                    } else {
+                        wrong++;
+                    }
+                }
+            });
+
+            finalCorrectCount = correct;
+            finalWrongCount = wrong;
+            finalCalculatedScore = Math.round((correct / questionsData.length) * 100);
+
+            let elapsedSeconds = (30 * 60) - timeRemaining;
+            let eMins = Math.floor(elapsedSeconds / 60);
+            let eSecs = elapsedSeconds % 60;
+            finalTimeTaken = `${eMins < 10 ? '0' : ''}${eMins}:${eSecs < 10 ? '0' : ''}${eSecs}`;
+
+            sendDataToWebhook();
+        }
+
+        function showResultScreen() {
+            document.getElementById('exam-app').classList.add('hidden');
+            document.getElementById('header-exam-info').classList.add('hidden');
+            document.getElementById('result-screen').classList.remove('hidden');
+
+            document.getElementById('res-score').innerText = finalCalculatedScore;
+            document.getElementById('res-correct').innerText = finalCorrectCount;
+            document.getElementById('res-wrong').innerText = finalWrongCount;
+            document.getElementById('res-time').innerText = finalTimeTaken;
+        }
+
+        function sendDataToWebhook() {
+            const url = document.getElementById('custom-script-url').value.trim() || defaultScriptUrl;
+            const statusDiv = document.getElementById('submit-status');
+            statusDiv.classList.remove('hidden', 'bg-rose-100', 'text-rose-800', 'bg-emerald-100', 'text-emerald-800');
+            statusDiv.classList.add('bg-blue-50', 'text-blue-800');
+            statusDiv.innerHTML = `<i class="fa-solid fa-spinner animate-spin"></i> Mengirim data nilai ke server Google Sheets...`;
+
+            const payload = {
+                nama: userName,
+                skor: finalCalculatedScore,
+                benar: finalCorrectCount,
+                salah: finalWrongCount,
+                waktu: finalTimeTaken,
+                pelanggaran: violationCount,
+                tanggal: new Date().toLocaleString('id-ID')
+            };
+
+            fetch(url, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            })
+            .then(() => {
+                statusDiv.className = "mb-4 p-3 rounded-xl text-xs font-medium bg-emerald-100 text-emerald-800 flex items-center justify-center gap-2";
+                statusDiv.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-600"></i> Nilai Anda telah berhasil dikirim & terekam di database!`;
+            })
+            .catch(err => {
+                statusDiv.className = "mb-4 p-3 rounded-xl text-xs font-medium bg-rose-100 text-rose-800 flex items-center justify-center gap-2";
+                statusDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-rose-600"></i> Gagal terhubung otomatis. Silakan cek URL Web App Admin.`;
+            });
+        }
+
+        function resendResultData() {
+            sendDataToWebhook();
+        }
+
+        // Admin & Discussion Modal logic
+        function openAdminPasswordModal() {
+            document.getElementById('admin-password-input').value = '';
+            document.getElementById('admin-password-error').classList.add('hidden');
+            document.getElementById('admin-modal').classList.remove('hidden');
+        }
+
+        function closeAdminPasswordModal() {
+            document.getElementById('admin-modal').classList.add('hidden');
+        }
+
+        function handleAdminPasswordSubmit(e) {
+            e.preventDefault();
+            const pass = document.getElementById('admin-password-input').value;
+            if (pass === 'admin123') { // Sandi Admin Default
+                closeAdminPasswordModal();
+                document.getElementById('webhook-config-panel').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-password-error').classList.remove('hidden');
+            }
+        }
+
+        function closeAdminConfigPanel() {
+            document.getElementById('webhook-config-panel').classList.add('hidden');
+        }
+
+        function toggleDiscussionSection() {
+            const discSec = document.getElementById('discussion-section');
+            if (discSec.classList.contains('hidden')) {
+                document.getElementById('discussion-password-input').value = '';
+                document.getElementById('discussion-password-error').classList.add('hidden');
+                document.getElementById('discussion-password-modal').classList.remove('hidden');
+            } else {
+                discSec.classList.add('hidden');
+            }
+        }
+
+        function closeDiscussionPasswordModal() {
+            document.getElementById('discussion-password-modal').classList.add('hidden');
+        }
+
+        function handleDiscussionPasswordSubmit(e) {
+            e.preventDefault();
+            const pass = document.getElementById('discussion-password-input').value;
+            if (pass === '123456') { // Sandi Pembahasan Default
+                closeDiscussionPasswordModal();
+                renderDiscussion();
+                document.getElementById('discussion-section').classList.remove('hidden');
+            } else {
+                document.getElementById('discussion-password-error').classList.remove('hidden');
+            }
+        }
+
+        function renderDiscussion() {
+            const container = document.getElementById('review-container');
+            container.innerHTML = '';
+
+            questionsData.forEach((q, idx) => {
+                const userAns = userAnswers[q.id];
+                const card = document.createElement('div');
+                card.className = "bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-3 text-left";
+
+                let ansStatusHtml = "";
+                let userAnsText = "-";
+
+                if (q.type === 'single') {
+                    const isCorrect = userAns === q.correctAnswer;
+                    ansStatusHtml = isCorrect 
+                        ? `<span class="px-2.5 py-1 bg-emerald-100 text-emerald-700 text-xs font-bold rounded-lg"><i class="fa-solid fa-check"></i> Benar</span>`
+                        : `<span class="px-2.5 py-1 bg-rose-100 text-rose-700 text-xs font-bold rounded-lg"><i class="fa-solid fa-xmark"></i> Salah</span>`;
+                    userAnsText = userAns !== undefined ? q.options[userAns] : 'Tidak dijawab';
+                }
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between border-b pb-3">
+                        <span class="text-xs font-bold text-slate-500">Soal ${idx + 1} (${q.typeName})</span>
+                        ${ansStatusHtml}
+                    </div>
+                    <p class="text-sm font-medium text-slate-800 leading-relaxed">${q.question}</p>
+                    <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-1">
+                        <p class="text-slate-600"><strong>Jawaban Anda:</strong> ${userAnsText}</p>
+                    </div>
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-200 text-xs text-blue-900 leading-relaxed">
+                        <strong><i class="fa-solid fa-lightbulb text-amber-500"></i> Pembahasan:</strong> ${q.discussion || 'Tidak ada pembahasan.'}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function restartExam() {
+            window.location.reload();
+        }
+    </script>
+</body>
+</html>
